@@ -90,20 +90,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void showMenuList(View view){
-        showMenuList();
-    }
-    public void showMenuList(){
-
-        View list = findViewById(R.id.activity_menu2);
-        list.setVisibility(View.VISIBLE);
-    }
-
-    public void hideMenuList(){
-        View list = findViewById(R.id.activity_menu2);
-        list.setVisibility(View.GONE);
-    }
-
 
     /**
      * Pages
@@ -135,8 +121,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showView(int i){
-
-        hideMenuList();
         mPager.setCurrentItem(i);
     }
 

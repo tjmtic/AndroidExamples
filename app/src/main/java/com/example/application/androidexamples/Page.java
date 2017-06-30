@@ -5,10 +5,12 @@ package com.example.application.androidexamples;
  */
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
+import com.google.android.gms.location.LocationListener;
+
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -18,8 +20,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,26 +45,34 @@ import java.io.OutputStreamWriter;
 
 import static android.content.Context.MODE_APPEND;
 
-public class Page extends Fragment {
+public class Page extends Fragment implements OnMapReadyCallback, LocationListener, PlaceSelectionListener {
+
+    public String TAG = "~_~map-gps-place-loc~_~";
 
     ViewGroup rootView;
+
+    EditText addressView;
+    EditText cityView;
+    EditText stateView;
+    EditText zipCodeView;
+    EditText countryView;
+
+    GoogleMap map;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(
-                R.layout.page_layout, container, false);
+                R.layout.locations, container, false);
 
-
-        initGeocache();
-
+        init();
 
         return rootView;
     }
 
 
     /**
-     * GEOCACHE
+     * init
      */
 
     //Permissions//
@@ -63,23 +85,40 @@ public class Page extends Fragment {
     public LocationManager locationManager;
     public LocationListener locationListener;
     public Location currentLocation;
+    public Location location;
 
-    public void initGeocache(){
+    public void init(){
 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
-                //makeUseOfNewLocation(location);
-
-
+                currentLocation = location;
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
         };
+
+
+        //Get map placeholder and replace with fragment
+        MapFragment fragment = new MapFragment();
+        FragmentManager manager = getActivity().getFragmentManager();
+        //Avoid crash upon re-initializing
+        manager.beginTransaction()
+                .replace(R.id.map, fragment)
+                .commit();
+        fragment.getMapAsync(this);
+
+
+        // Retrieve the PlaceAutocompleteFragment.
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getActivity().getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        // Register a listener to receive callbacks when a place has been selected or an error has
+        // occurred.
+        autocompleteFragment.setOnPlaceSelectedListener(this);
 
 
 
@@ -90,89 +129,71 @@ public class Page extends Fragment {
             public void onClick(View v) {
                 Log.d("Click","Clicked action button");
                 //currentLocation = getCurrentLocation();
-                setCurrentLocation(getCurrentLocation());
+                setActiveLocation(getActiveLocation());
             }
         });
 
-        Button writeButton = (Button) rootView.findViewById(R.id.writeFileBtn);
-        writeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Click","Clicked write button");
-                saveCurrentLocation();
-            }
-        });
 
-        Button readButton = (Button) rootView.findViewById(R.id.readFileBtn);
-        readButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Click","Clicked read button");
-                readFromFile(filename);
-            }
-        });
+
+        //EditText for Address Info
+        addressView = (EditText) rootView.findViewById(R.id.address);
+        cityView = (EditText) rootView.findViewById(R.id.city);
+        stateView = (EditText) rootView.findViewById(R.id.state);
+        zipCodeView = (EditText) rootView.findViewById(R.id.zip);
+        countryView = (EditText) rootView.findViewById(R.id.country);
 
     }
 
-    public void setCurrentLocation(Location newLoc){
 
-        this.currentLocation = newLoc;
 
-        if(currentLocation != null) {
-            TextView lat = (TextView) rootView.findViewById(R.id.latitude);
-            TextView lon = (TextView) rootView.findViewById(R.id.longitude);
+    @Override
+    public void onMapReady(GoogleMap map) {
 
-            lat.setText("Latitude: " + currentLocation.getLatitude());
-            lon.setText("Longitude: " + currentLocation.getLongitude());
-            Log.d("Location", "Latitude: " + currentLocation.getLatitude() + "Longitude: " + currentLocation.getLongitude());
-        }
+        this.map = map;
+
+        setLocation(getActiveLocation());
+
+        showLocation(location);
+    }
+
+    public void setLocation(Location loc){
+
+        this.location = loc;
 
     }
 
-    public void saveCurrentLocation(){
+    public Location getLocation(){
 
-        if(currentLocation != null) {
-            writeToFile(filename, "Latitude: " + currentLocation.getLatitude() + "Longitude: " + currentLocation.getLongitude());
-        }
+        return location;
     }
 
+    public void setCurrentLocation(Location loc){
+        this.currentLocation = loc;
+    }
+
+    public Location getCurentLocation(){
+        return currentLocation;
+    }
+
+    public void showLocation(Location loc){
+
+        LatLng lalo = new LatLng(location.getLatitude(), location.getLongitude());
+
+        map.addMarker(new MarkerOptions()
+                .position(lalo)
+                .title("*"));
+
+        //map.setMinZoomPreference(6.0f);
+        //map.setMaxZoomPreference(14.0f);
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(lalo, 10));
+
+    }
     /**
      * Verify permissions for location and retrieve location
      * @return last received location from gps or network prodiver
      *          null on errors
      */
-    public Location getCurrentLocation(){
-
-        Location location = null;
-
-        try {
-            if (verifyLocationPermissions(getActivity())) {
-            Log.d("Location", "Attempting");
-
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            if (location == null) {
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-
-
-            } else {
-                verifyLocationPermissions(getActivity());
-            }
-
-            Log.d("Location", location.toString());
-
-        } catch(SecurityException e){
-
-            Log.d("Security Exception", e.getMessage());
-
-        }
-
-        return location;
-
-    }
-
     public static boolean verifyLocationPermissions(Activity activity) {
         // Check if we have permission
         Log.d("GEOCACHE", "check permission");
@@ -193,6 +214,153 @@ public class Page extends Fragment {
 
         return false;
     }
+
+    public Location getActiveLocation(){
+
+        Location location = null;
+
+        try {
+            if (verifyLocationPermissions(getActivity())) {
+
+                LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                if (location == null) {
+                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                }
+
+                Log.d("Location", location.toString());
+
+
+            } else {
+                verifyLocationPermissions(getActivity());
+            }
+
+
+        } catch(SecurityException e){
+
+            Log.d("Security Exception", e.getMessage());
+
+        }
+
+        return location;
+
+    }
+
+    public void setActiveLocation(Location newLoc){
+
+        this.location = newLoc;
+
+        if(location != null) {
+            TextView lat = (TextView) rootView.findViewById(R.id.latitude);
+            TextView lon = (TextView) rootView.findViewById(R.id.longitude);
+
+            lat.setText("Latitude: " + location.getLatitude());
+            lon.setText("Longitude: " + location.getLongitude());
+            Log.d("Location", "Latitude: " + location.getLatitude() + "Longitude: " + location.getLongitude());
+        }
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        String msg = "New Latitude: " + location.getLatitude()
+                + "New Longitude: " + location.getLongitude();
+
+        Statics.toast(getActivity(), "Location Updated", 0);
+
+        Log.d(TAG, msg);
+    }
+
+    /**Place**/
+
+    Place place;
+
+    public void setPlace(Place place){
+
+        this.place = place;
+
+    }
+
+    public Place getPlace(){
+
+        return place;
+
+    }
+
+    public void showPlace(Place place){
+
+        map.addMarker(new MarkerOptions()
+                .position(place.getLatLng())
+                .title(place.getName().toString()));
+
+        //map.setMinZoomPreference(6.0f);
+        //map.setMaxZoomPreference(14.0f);
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10));
+
+    }
+
+    /**
+     * Callback invoked when a place has been selected from the PlaceAutocompleteFragment.
+     */
+    @Override
+    public void onPlaceSelected(Place place) {
+
+        try {
+
+            setPlace(place);
+            setAddressText(place);
+            showPlace(place);
+
+        }
+        catch(ArrayIndexOutOfBoundsException e){
+            Log.d(TAG, "There was a problem with the address, please check the information.");
+        }
+    }
+
+    /**
+     * Callback invoked when PlaceAutocompleteFragment encounters an error.
+     */
+    @Override
+    public void onError(Status status) {
+        Log.e(TAG, "onError: Status = " + status.toString());
+
+        Statics.setAlert(getActivity(), "Place selection failed: " + status.getStatusMessage());
+    }
+
+
+
+
+
+
+    public void setAddressText(Place place){
+        String[] addy = place.getAddress().toString().split(",");
+
+        // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+        addressView.setText(addy[0]);
+        cityView.setText(addy[1]);
+        String[] temp = addy[2].split(" ");
+        stateView.setText(temp[1]);
+        zipCodeView.setText(temp[2]);
+        countryView.setText(addy[3]);
+    }
+
+    public String[] getAddressText(){
+
+        String[] addy = new String[4];
+
+        addy[0] = addressView.getText().toString();
+        addy[1] = cityView.getText().toString();
+        addy[2] = stateView.getText().toString();
+        addy[2] += " " + zipCodeView.getText();
+        addy[3] = countryView.getText().toString();
+
+        return addy;
+
+    }
+
 
 
     /**

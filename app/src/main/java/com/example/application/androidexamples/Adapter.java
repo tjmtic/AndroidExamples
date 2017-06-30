@@ -24,9 +24,9 @@ class Adapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         //switch on position for different types of pages
         switch(position){
-            default: return new Page();
+            default: return new PageX();
 
-            case 2: return new PageX();
+            case 0: return new Page();
         }
     }
 
