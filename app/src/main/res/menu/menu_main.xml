@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="100dp">
+
+
+    <item
+        android:id="@+id/action_1"
+        android:orderInCategory="100"
+        android:title="View 1"
+        app:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/action_2"
+        android:title="View 2"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_3"
+        android:title="View 3"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_4"
+        android:title="View 4"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_5"
+        android:title="View 5"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+
+</menu>

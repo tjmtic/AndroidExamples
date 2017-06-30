@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.application.androidexamples.MainActivity"
+    android:id="@+id/content_root"
+    >
+<LinearLayout
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+
+
+
+    <ImageView android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:src="@mipmap/banner" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        >
+
+
+
+
+
+        <!-- Custom Menu -->
+        <LinearLayout
+            android:id="@+id/activity_menu1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:background="@color/gray"
+            >
+
+            <TextView android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:text="View 1"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:onClick="showView1"/>
+
+            <TextView android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:text="View 2"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:onClick="showView2"/>
+
+
+            <ImageView android:layout_height="50dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:src="@mipmap/banner"
+                android:onClick="showMenuList"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/activity_menu2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            android:elevation="4dp"
+            android:background="@color/gray"
+            >
+
+            <TextView android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="View 3"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:layout_margin="10dp"
+                android:onClick="showView3"/>
+
+            <TextView android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="View 4"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:layout_margin="10dp"
+                android:onClick="showView4"/>
+
+            <TextView android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="View 5"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:layout_margin="10dp"
+                android:onClick="showView5"/>
+
+        </LinearLayout>
+
+
+        <!-- Page Views -->
+
+        <android.support.v4.view.ViewPager
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/activity_menu1"/>
+
+        </RelativeLayout>
+
+
+
+
+
+</LinearLayout>
+
+
+    <!-- Popup -->
+    <ViewStub
+        android:id="@+id/stub_import"
+        android:inflatedId="@+id/panel_import"
+        android:layout="@layout/activity_popup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom" />
+
+</RelativeLayout>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Android Examples</string>
+    <string name="lorem_ipsum">This is not latin</string>
+</resources>
