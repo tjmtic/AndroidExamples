@@ -2,6 +2,8 @@ package com.example.application.androidexamples;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
@@ -82,6 +84,43 @@ public class Statics {
                     Toast.makeText(activity.getBaseContext(), message, Toast.LENGTH_SHORT).show();
                     break;
         }
+    }
+
+
+    /**
+     * Permissions
+     */
+
+    private static final int REQUEST_FINE_LOCATION = 1;
+    private static String[] LOCATIONS_STORAGE = {
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
+    /**
+     * Verify permissions for location and retrieve location
+     * @return last received location from gps or network prodiver
+     *          null on errors
+     */
+    public static boolean verifyLocationPermissions(Activity activity) {
+        // Check if we have permission
+        Log.d("GEOCACHE", "check permission");
+        int permission = ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    LOCATIONS_STORAGE,
+                    REQUEST_FINE_LOCATION
+            );
+        }
+
+        else{
+            return true;
+        }
+
+        return false;
     }
 
 

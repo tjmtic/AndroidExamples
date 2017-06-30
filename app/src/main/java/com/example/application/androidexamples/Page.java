@@ -75,12 +75,6 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
      * init
      */
 
-    //Permissions//
-    private static final int REQUEST_FINE_LOCATION = 1;
-    private static String[] LOCATIONS_STORAGE = {
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-    };
 
     public LocationManager locationManager;
     public LocationListener locationListener;
@@ -127,9 +121,9 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Click","Clicked action button");
-                //currentLocation = getCurrentLocation();
                 setActiveLocation(getActiveLocation());
+                setLocation(getActiveLocation());
+                showLocation(location, "T:"+location.getTime());
             }
         });
 
@@ -151,9 +145,25 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
 
         this.map = map;
 
-        setLocation(getActiveLocation());
+    }
 
-        showLocation(location);
+    public void showOnMap(LatLng lalo, String title){
+        map.addMarker(new MarkerOptions()
+                .position(lalo)
+                .title(title));
+
+        //map.setMinZoomPreference(6.0f);
+        //map.setMaxZoomPreference(14.0f);
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(lalo, 10));
+    }
+
+    public void showLocation(Location loc, String title){
+
+        LatLng lalo = new LatLng(loc.getLatitude(), loc.getLongitude());
+
+        showOnMap(lalo, title);
+
     }
 
     public void setLocation(Location loc){
@@ -175,52 +185,12 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
         return currentLocation;
     }
 
-    public void showLocation(Location loc){
-
-        LatLng lalo = new LatLng(location.getLatitude(), location.getLongitude());
-
-        map.addMarker(new MarkerOptions()
-                .position(lalo)
-                .title("*"));
-
-        //map.setMinZoomPreference(6.0f);
-        //map.setMaxZoomPreference(14.0f);
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(lalo, 10));
-
-    }
-    /**
-     * Verify permissions for location and retrieve location
-     * @return last received location from gps or network prodiver
-     *          null on errors
-     */
-    public static boolean verifyLocationPermissions(Activity activity) {
-        // Check if we have permission
-        Log.d("GEOCACHE", "check permission");
-        int permission = ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    LOCATIONS_STORAGE,
-                    REQUEST_FINE_LOCATION
-            );
-        }
-
-        else{
-            return true;
-        }
-
-        return false;
-    }
-
     public Location getActiveLocation(){
 
         Location location = null;
 
         try {
-            if (verifyLocationPermissions(getActivity())) {
+            if (Statics.verifyLocationPermissions(getActivity())) {
 
                 LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -233,7 +203,7 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
 
 
             } else {
-                verifyLocationPermissions(getActivity());
+                Statics.verifyLocationPermissions(getActivity());
             }
 
 
@@ -273,6 +243,8 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
         Log.d(TAG, msg);
     }
 
+
+
     /**Place**/
 
     Place place;
@@ -291,14 +263,9 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
 
     public void showPlace(Place place){
 
-        map.addMarker(new MarkerOptions()
-                .position(place.getLatLng())
-                .title(place.getName().toString()));
+        LatLng lalo = place.getLatLng();
 
-        //map.setMinZoomPreference(6.0f);
-        //map.setMaxZoomPreference(14.0f);
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10));
+        showOnMap(lalo, place.getName().toString());
 
     }
 
@@ -332,8 +299,7 @@ public class Page extends Fragment implements OnMapReadyCallback, LocationListen
 
 
 
-
-
+    /**Address**/
 
     public void setAddressText(Place place){
         String[] addy = place.getAddress().toString().split(",");
