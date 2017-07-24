@@ -23,20 +23,32 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.CustomRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private final String TAG = "=~_~=tijAmAtic=~_~=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initPager();
+        //initPager();
        // initGeocache();
+
+        login("test@test.com", "cookie");
+        get();
     }
 
 
@@ -181,189 +193,147 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
-     * GEOCACHE
+     * LOGIN
+     * NETWORK REQUEST
      */
 
-    //Permissions//
-   /* private static final int REQUEST_FINE_LOCATION = 1;
-    private static String[] LOCATIONS_STORAGE = {
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-    };*/
 
- /*   public LocationManager locationManager;
-    public LocationListener locationListener;
-    public Location currentLocation;
+    public void login(String e, String p){
 
-    public void initGeocache(){
+        String email = e;
+        String password = p;
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("email", email);
+        params.put("password", password);
+        params.put("device_type", "G");
+       // params.put("store_id", appId);
 
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                //makeUseOfNewLocation(location);
+       CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
+        f.addStringParam("email", email);
+        f.addStringParam("password", password);
 
+
+       // Map<String, String> params = f.buildParams();
+
+
+        Log.d(TAG, "LOGIN PARAMS" + params.toString());
+        //showLoading();
+
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, response.toString());
+                JSONObject jsonMainNode = response;
+
+                try {
+
+                    String status = response.getString("response");
+                    Constants.setCsrf(response.getString("_csrf"));
+                    Constants.setSid(response.getString("set-cookie"));
+
+                    //check response
+                    if (status.toString().equals("success")) {
+                        //////////////good///////////
+
+                        //capture response info
+                        JSONObject uInfo = jsonMainNode.getJSONObject("user");
+                        get();
+                       // User lUser = new User(uInfo);
+
+                    }
+                    //bad
+                    else{
+                        //Log and display error message
+                        JSONObject message = response.getJSONObject("message");
+                        Log.d(TAG, "Login Failure " + message.toString());
+
+                    }
+                    //hideLoading();
+
+                }catch(JSONException e){
+                    //Log and display error message
+                    Statics.setAlert(MainActivity.this,"There was an error");
+                    Log.d(TAG, "There was an aerror" + e);
+                }
+                //hide loading spinner
+                //hideLoading();
 
             }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-            public void onProviderEnabled(String provider) {}
-            public void onProviderDisabled(String provider) {}
-        };
-
-
-
-        Button locationButton = (Button) findViewById(R.id.actionBtn);
-        locationButton.setOnClickListener(new View.OnClickListener() {
+        }, new Response.ErrorListener() {
             @Override
-            public void onClick(View v) {
-                getCurrentLocation();
+            public void onErrorResponse(final VolleyError error) {
+// TODO Auto-generated method stub
+                // hideLoading();
+                //throw alert about connecting to server
+                Log.d(TAG, "couldn't connect....." + error.getMessage());
+                //setAlert("There was an error = " + error.getMessage());
             }
         });
-
+        MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
     }
-*//*
-    public void setCurrentLocation(){
-
-       // this.currentLocation = getCurrentLocation();
-
-        if(currentLocation != null) {
-            TextView lat = (TextView) findViewById(R.id.latitude);
-            TextView lon = (TextView) findViewById(R.id.longitude);
-
-            lat.setText("Latitude: " + currentLocation.getLatitude());
-            lon.setText("Longitude: " + currentLocation.getLongitude());
 
 
-            writeToFile(filename, "Latitude: " + currentLocation.getLatitude() + "Longitude: " + currentLocation.getLongitude());
-        }
+    public void get(){
 
-    }
-*/
-    /**
-     * Verify permissions for location and retrieve location
-     * @return last received location from gps or network prodiver
-     *          null on errors
-     */
- /*
-    public Location getCurrentLocation(){
 
-        Location location = null;
+        CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
+        Map<String, String> params = f.buildParams();
+        Log.d(TAG, "GET PARAMS" + params.toString());
 
-        try {
-            //if (verifyLocationPermissions(this)) {
+        //showLoading();
 
-                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.GET, Constants.homeUrl, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
 
-                if (location == null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                Log.d("response", response.toString());
+                JSONObject jsonMainNode = response;
+
+                try {
+
+                    String status = response.getString("response");
+                    Constants.setCsrf(response.getString("_csrf"));
+                    Constants.setSid(response.getString("set-cookie"));
+
+                    //check response
+                    if (status.toString().equals("success")) {
+                        //////////////good///////////
+
+                        Log.d(TAG, "Success");
+
+                    }
+                    //bad
+                    else{
+                        //Log and display error message
+                        JSONObject message = response.getJSONObject("message");
+                        Log.d(TAG, "Login Failure " + message.toString());
+
+                    }
+                    //hideLoading();
+
+                }catch(JSONException e){
+                    //Log and display error message
+                    Statics.setAlert(MainActivity.this,"There was an error");
+                    Log.d(TAG, "There was an aerror" + e);
                 }
+                //hide loading spinner
+                //hideLoading();
 
-            } else {
-                verifyLocationPermissions(this);
             }
-        } catch(SecurityException e){
-
-            Log.d("Security Exception", e.getMessage());
-
-        }
-
-        return location;
-
-    }
-    */
-
-/*
-    public static boolean verifyLocationPermissions(Activity activity) {
-        // Check if we have permission
-        Log.d("GEOCACHE", "check permission");
-        int permission = ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    LOCATIONS_STORAGE,
-                    REQUEST_FINE_LOCATION
-            );
-        }
-
-        else{
-            return true;
-        }
-
-        return false;
-    }
-*/
-
-    /**
-     *
-     * READ/WRITE
-     *
-     */
-
-  //  public static String filename = "newfile.txt";
-/*
-    public void writeFile(View v){
-
-        setCurrentLocation();
-    }*/
-/*
-    public void writeToFile(String filename, String newText){
-
-        try {
-            FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
-            OutputStreamWriter outputWriter = new OutputStreamWriter(fos);
-            outputWriter.write(newText);
-            outputWriter.close();
-
-
-            Toast.makeText(getBaseContext(), "Successful write",
-                    Toast.LENGTH_SHORT).show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void readFile(View v){
-        readFromFile(filename);
-    }
-    public void readFromFile(String filename){
-
-        try {
-            FileInputStream fis = openFileInput(filename);
-            InputStreamReader InputRead= new InputStreamReader(fis);
-
-            char[] inputBuffer= new char[100];
-            String s="";
-            int charRead;
-
-            while ((charRead=InputRead.read(inputBuffer))>0) {
-                // char to string conversion
-                String readstring = String.copyValueOf(inputBuffer,0,charRead);
-                s +=readstring;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(final VolleyError error) {
+// TODO Auto-generated method stub
+                // hideLoading();
+                //throw alert about connecting to server
+                Log.d("new error", "couldn't connect....." + error.getMessage());
+                //setAlert("There was an error = " + error.getMessage());
             }
-            InputRead.close();
-
-
-            //Use value
-            TextView text = (TextView) findViewById(R.id.text);
-            text.setText(s);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+        MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
     }
-*/
-
-
-
-
 
 }
