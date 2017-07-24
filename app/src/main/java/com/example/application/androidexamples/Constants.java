@@ -10,13 +10,13 @@ public class Constants {
 
     public final String google_geo_apikey ="AIzaSyDB7bm7x8SrkYPhxgStOvhomT80wlVV8_A";
 
-    //public static final String loginUrl = "http://10.0.2.2:3000/"; //localhost:3000
-    //public static String loginUrl = "https://maxecommerce.herokuapp.com/appLogin";
+    public static final String server = "http://10.0.2.2:3003/"; //localhost:3000
+    //public static String server = "https://maxecommerce.herokuapp.com/";
 
-    private static String server = "https://tjmtic-node-examples.herokuapp.com/";
-
-    public static final String loginUrl = server+"login"; //localhost:3000
-    public static final String homeUrl = server+"logout";
+    //private static String server = "https://tjmtic-node-examples.herokuapp.com/";
+    //public static final String loginUrl = server+"appLogin"; //localhost:3000
+    public static final String loginUrl = server+"users/app/login/"; //localhost:3000
+    public static final String homeUrl = server+"users/app/";
 
 
     private static Context mCtx;
@@ -44,7 +44,7 @@ public class Constants {
     public static void setCsrf(String s){
         csrf = s;
     }
-    public String getCsrf(){
+    public static String getCsrf(){
         return csrf;
     }
 
@@ -52,7 +52,7 @@ public class Constants {
         sid = s;
     }
 
-    public String getSid(){
+    public static String getSid(){
         return sid;
     }
 }

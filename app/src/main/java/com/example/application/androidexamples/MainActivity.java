@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.CustomRequest;
+import com.android.volley.toolbox.CustomStringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         //initPager();
        // initGeocache();
 
-        login("test@test.com", "cookie");
+        //login("test@test.com", "cookie");
         get();
     }
 
@@ -204,24 +205,23 @@ public class MainActivity extends AppCompatActivity {
         String email = e;
         String password = p;
 
-        Map<String, String> params = new HashMap<String, String>();
+       /* Map<String, String> params = new HashMap<String, String>();
         params.put("email", email);
         params.put("password", password);
-        params.put("device_type", "G");
+        params.put("device_type", "G");*/
        // params.put("store_id", appId);
 
        CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
         f.addStringParam("email", email);
         f.addStringParam("password", password);
 
-
-       // Map<String, String> params = f.buildParams();
+        Map<String, String> params = f.buildParams();
 
 
         Log.d(TAG, "LOGIN PARAMS" + params.toString());
         //showLoading();
 
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, Constants.getSid(),  new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -230,9 +230,9 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                    String status = response.getString("response");
-                    Constants.setCsrf(response.getString("_csrf"));
-                    Constants.setSid(response.getString("set-cookie"));
+                    String status = response.getString("message");
+                    Constants.setCsrf(response.getString("csrf"));
+                    //Constants.setSid(response.getString("set-cookie"));
 
                     //check response
                     if (status.toString().equals("success")) {
@@ -240,7 +240,8 @@ public class MainActivity extends AppCompatActivity {
 
                         //capture response info
                         JSONObject uInfo = jsonMainNode.getJSONObject("user");
-                        get();
+                        Log.d(TAG, uInfo.toString());
+                        //get();
                        // User lUser = new User(uInfo);
 
                     }
@@ -285,17 +286,18 @@ public class MainActivity extends AppCompatActivity {
 
         //showLoading();
 
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.GET, Constants.homeUrl, params, new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Constants.homeUrl, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
                 Log.d("response", response.toString());
-                JSONObject jsonMainNode = response;
+
+                JSONObject responseNode = new JSONObject();//response;
 
                 try {
 
-                    String status = response.getString("response");
-                    Constants.setCsrf(response.getString("_csrf"));
+                    String status = response.getString("message");
+                    Constants.setCsrf(response.getString("csrf"));
                     Constants.setSid(response.getString("set-cookie"));
 
                     //check response
@@ -303,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
                         //////////////good///////////
 
                         Log.d(TAG, "Success");
+                        login("test@test.com", "cookie");
 
                     }
                     //bad
