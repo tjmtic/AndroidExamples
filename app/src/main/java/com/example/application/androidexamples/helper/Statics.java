@@ -1,4 +1,4 @@
-package com.example.application.androidexamples;
+package com.example.application.androidexamples.helper;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -13,6 +13,13 @@ import android.widget.Toast;
  */
 
 public class Statics {
+
+
+    /**
+     * LOADING ANIMATION
+     */
+
+
 
     /**Alerts**/
 

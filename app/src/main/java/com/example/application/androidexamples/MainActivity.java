@@ -1,38 +1,33 @@
 package com.example.application.androidexamples;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
+import android.content.Intent;
+import android.provider.Settings;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.CustomRequest;
-import com.android.volley.toolbox.CustomStringRequest;
+import com.example.application.androidexamples.helper.Constants;
+import com.example.application.androidexamples.helper.Statics;
+import com.example.application.androidexamples.model.User;
+import com.example.application.androidexamples.network.CustomRequestParameterFactory;
+import com.example.application.androidexamples.network.MySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -44,12 +39,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//Should have to check for a permission here?...
+        ((ExampleApplication)getApplication()).setDeviceId(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
-        //initPager();
-       // initGeocache();
-
-        //login("test@test.com", "cookie");
         get();
+       // startSignIn();
     }
 
 
@@ -103,6 +97,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (Activity.RESULT_OK != resultCode) {
+            finish();
+            return;
+        }
+
+        else if(requestCode == Constants.REQUEST_LOGIN) {
+            User u = ((ExampleApplication)getApplication()).getUser();
+            Statics.toast(this, getResources().getString(R.string.login_welcome) + u.getUsername(), 0);
+        }
+    }
 
     /**
      * Pages
@@ -195,10 +203,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
+     * LOGIN ACTIVITY
+     */
+    private void startSignIn() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, Constants.REQUEST_LOGIN);
+    }
+
+
+    /**
      * LOGIN
      * NETWORK REQUEST
      */
-
 
     public void login(String e, String p){
 
@@ -221,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "LOGIN PARAMS" + params.toString());
         //showLoading();
 
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, Constants.getSid(),  new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, ((ExampleApplication)(MainActivity.this.getApplication())).getSid(),  new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -231,8 +247,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     String status = response.getString("message");
-                    Constants.setCsrf(response.getString("csrf"));
-                    //Constants.setSid(response.getString("set-cookie"));
+                    ((ExampleApplication)(MainActivity.this.getApplication())).setCsrf(response.getString("csrf"));
+                    ((ExampleApplication)(MainActivity.this.getApplication())).setSid(response.getString("set-cookie"));
 
                     //check response
                     if (status.toString().equals("success")) {
@@ -241,8 +257,10 @@ public class MainActivity extends AppCompatActivity {
                         //capture response info
                         JSONObject uInfo = jsonMainNode.getJSONObject("user");
                         Log.d(TAG, uInfo.toString());
-                        //get();
-                       // User lUser = new User(uInfo);
+
+                        User lUser = new User(uInfo);
+
+                        ((ExampleApplication)(MainActivity.this.getApplication())).setUser(lUser);
 
                     }
                     //bad
@@ -276,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
         MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
     }
 
-
     public void get(){
 
 
@@ -297,15 +314,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     String status = response.getString("message");
-                    Constants.setCsrf(response.getString("csrf"));
-                    Constants.setSid(response.getString("set-cookie"));
+                    ((ExampleApplication)(MainActivity.this.getApplication())).setCsrf(response.getString("csrf"));
+                    ((ExampleApplication)(MainActivity.this.getApplication())).setSid(response.getString("set-cookie"));
 
                     //check response
                     if (status.toString().equals("success")) {
                         //////////////good///////////
 
                         Log.d(TAG, "Success");
-                        login("test@test.com", "cookie");
+                       // login("test@test.com", "cookie");
+                        startSignIn();
 
                     }
                     //bad

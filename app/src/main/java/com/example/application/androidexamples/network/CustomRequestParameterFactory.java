@@ -1,9 +1,10 @@
-package com.example.application.androidexamples;
+package com.example.application.androidexamples.network;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
-import org.json.JSONException;
+import com.example.application.androidexamples.ExampleApplication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +22,26 @@ public class CustomRequestParameterFactory {
     Map<String, String> params;
 
 
+    public CustomRequestParameterFactory(Application ctx){
+
+        this.params = new HashMap<String, String>();
+
+        ExampleApplication app = (ExampleApplication)ctx;
+
+        params.put("_csrf", app.getCsrf());
+        params.put("sid", app.getSid());
+
+
+    }
+
     public CustomRequestParameterFactory(Context ctx){
 
         this.params = new HashMap<String, String>();
 
-        params.put("_csrf", Constants.getInstance(mCtx).getCsrf());
-        params.put("sid", Constants.getInstance(mCtx).getSid());
+        ExampleApplication app = (ExampleApplication)((Activity)ctx).getApplication();
+
+        params.put("_csrf", app.getCsrf());
+        params.put("sid", app.getSid());
 
 
     }

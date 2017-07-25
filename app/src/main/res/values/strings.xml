@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Android Examples</string>
     <string name="lorem_ipsum">This is not latin</string>
+    <string name="login_welcome">Logged in as:</string>
+    <string name="forgot_message">Enter email</string>
+    <string name="error_field_required">Required*</string>
 
     <string name="google_geo_apikey">AIzaSyDB7bm7x8SrkYPhxgStOvhomT80wlVV8_A</string>
 </resources>

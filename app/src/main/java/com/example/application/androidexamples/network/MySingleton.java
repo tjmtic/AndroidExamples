@@ -1,4 +1,4 @@
-package com.example.application.androidexamples;
+package com.example.application.androidexamples.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,7 +10,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 /**
- * Created by Dane on 9/16/2016.
+ * Created by TM on 9/16/2016.
  */
 public class MySingleton {
 

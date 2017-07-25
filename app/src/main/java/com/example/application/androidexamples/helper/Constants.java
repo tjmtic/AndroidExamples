@@ -1,4 +1,4 @@
-package com.example.application.androidexamples;
+package com.example.application.androidexamples.helper;
 
 import android.content.Context;
 
@@ -8,17 +8,45 @@ import android.content.Context;
 
 public class Constants {
 
+    /**
+     * API KEYS
+     */
     public final String google_geo_apikey ="AIzaSyDB7bm7x8SrkYPhxgStOvhomT80wlVV8_A";
 
+
+    /**
+     * SERVER ACCESS
+     */
     public static final String server = "http://10.0.2.2:3003/"; //localhost:3000
     //public static String server = "https://maxecommerce.herokuapp.com/";
-
     //private static String server = "https://tjmtic-node-examples.herokuapp.com/";
+
+
+    /**
+     * NETOWRK REQUESTS
+     */
     //public static final String loginUrl = server+"appLogin"; //localhost:3000
     public static final String loginUrl = server+"users/app/login/"; //localhost:3000
     public static final String homeUrl = server+"users/app/";
 
 
+    /**
+     * REQUEST CODES
+     */
+
+        public static int REQUEST_LOGIN = 0;
+
+
+
+
+
+
+
+
+
+
+
+    /*
     private static Context mCtx;
     private static Constants mInstance;
 
@@ -33,26 +61,7 @@ public class Constants {
         }
         return mInstance;
     }
+*/
 
 
-    //Application Level Vars
-
-    static String csrf = "";
-    static String sid = "";
-
-
-    public static void setCsrf(String s){
-        csrf = s;
-    }
-    public static String getCsrf(){
-        return csrf;
-    }
-
-    public static void setSid(String s){
-        sid = s;
-    }
-
-    public static String getSid(){
-        return sid;
-    }
 }
