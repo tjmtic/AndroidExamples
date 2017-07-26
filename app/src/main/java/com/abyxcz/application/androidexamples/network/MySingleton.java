@@ -1,4 +1,4 @@
-package com.example.application.androidexamples.network;
+package com.abyxcz.application.androidexamples.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;

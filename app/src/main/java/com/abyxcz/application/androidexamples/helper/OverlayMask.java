@@ -1,14 +1,13 @@
-package com.example.application.androidexamples.helper;
+package com.abyxcz.application.androidexamples.helper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.example.application.androidexamples.R;
+import com.abyxcz.application.androidexamples.R;
 
 
 /**

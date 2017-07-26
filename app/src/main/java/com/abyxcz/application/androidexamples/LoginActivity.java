@@ -1,4 +1,4 @@
-package com.example.application.androidexamples;
+package com.abyxcz.application.androidexamples;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,12 +17,12 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.CustomRequest;
-import com.example.application.androidexamples.helper.Constants;
-import com.example.application.androidexamples.helper.OverlayMask;
-import com.example.application.androidexamples.helper.Statics;
-import com.example.application.androidexamples.model.User;
-import com.example.application.androidexamples.network.CustomRequestParameterFactory;
-import com.example.application.androidexamples.network.MySingleton;
+import com.abyxcz.application.androidexamples.helper.Constants;
+import com.abyxcz.application.androidexamples.helper.OverlayMask;
+import com.abyxcz.application.androidexamples.helper.Statics;
+import com.abyxcz.application.androidexamples.model.User;
+import com.abyxcz.application.androidexamples.network.CustomRequestParameterFactory;
+import com.abyxcz.application.androidexamples.network.MySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,6 +93,12 @@ public class LoginActivity extends Activity {
                 attemptLogin();
             }
         });
+
+
+
+
+
+        //Facebook Login Initialization
 
     }
 

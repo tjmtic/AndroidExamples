@@ -1,6 +1,4 @@
-package com.example.application.androidexamples.helper;
-
-import android.content.Context;
+package com.abyxcz.application.androidexamples.helper;
 
 /**
  * Created by Tim on 6/29/2017.

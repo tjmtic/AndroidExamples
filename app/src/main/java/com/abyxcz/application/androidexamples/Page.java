@@ -1,4 +1,4 @@
-package com.example.application.androidexamples;
+package com.abyxcz.application.androidexamples;
 
 /**
  * Created by Tim on 6/14/2017.
@@ -8,7 +8,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Location;
 
-import com.example.application.androidexamples.helper.Statics;
+import com.abyxcz.application.androidexamples.helper.Statics;
 import com.google.android.gms.location.LocationListener;
 
 import android.location.LocationManager;

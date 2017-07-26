@@ -7,7 +7,7 @@
     android:background="@color/colorPrimaryDark"
     android:fitsSystemWindows="true"
     android:id="@+id/main_layout"
-    tools:context="com.example.application.androidexamples.MainActivity">
+    tools:context="com.abyxcz.application.androidexamples.MainActivity">
 
 
 

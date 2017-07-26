@@ -1,10 +1,10 @@
-package com.example.application.androidexamples.network;
+package com.abyxcz.application.androidexamples.network;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.application.androidexamples.ExampleApplication;
+import com.abyxcz.application.androidexamples.ExampleApplication;
 
 import java.util.HashMap;
 import java.util.Map;

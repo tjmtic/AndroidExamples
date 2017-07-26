@@ -1,4 +1,4 @@
-package com.example.application.androidexamples.helper;
+package com.abyxcz.application.androidexamples.helper;
 
 import android.app.Activity;
 import android.content.DialogInterface;

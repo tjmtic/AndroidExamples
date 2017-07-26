@@ -6,4 +6,7 @@
     <string name="error_field_required">Required*</string>
 
     <string name="google_geo_apikey">AIzaSyDB7bm7x8SrkYPhxgStOvhomT80wlVV8_A</string>
+
+    <string name="facebook_app_id">158576784711694</string>
+    <string name="fb_login_protocol_scheme">fb158576784711694</string>
 </resources>
