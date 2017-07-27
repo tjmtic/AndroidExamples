@@ -39,4 +39,9 @@ dependencies {
     //Facebook Login
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 
+
+
 }
+
+//Push Notification form FIREBASE
+apply plugin: 'com.google.gms.google-services'

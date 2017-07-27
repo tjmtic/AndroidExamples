@@ -25,6 +25,9 @@ import com.abyxcz.application.androidexamples.model.User;
 import com.abyxcz.application.androidexamples.network.CustomRequestParameterFactory;
 import com.abyxcz.application.androidexamples.network.MySingleton;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 //Should have to check for a permission here?...
         ((ExampleApplication)getApplication()).setDeviceId(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
+        Log.d(TAG, "DEVICE = " +FirebaseInstanceId.getInstance().getToken());
         get();
        // startSignIn();
     }
