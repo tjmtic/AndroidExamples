@@ -30,6 +30,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.abyxcz.application.androidexamples.MainActivity;
+import com.abyxcz.application.androidexamples.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -71,6 +72,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
 
+            sendNotification(remoteMessage.getNotification().getBody());
+
             //sendNotification(remoteMessage.getNotification().getBody());
 
             //((MainActivity)getApplicationContext()).setAlert("NEW MESSAGE =" + remoteMessage.getNotification().getBody());
@@ -94,7 +97,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                //.setSmallIcon(R.drawable.quadbuddy_logo_frame1)
+                .setSmallIcon(R.drawable.rounded)
                 .setContentTitle("TJMTIC Message")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
