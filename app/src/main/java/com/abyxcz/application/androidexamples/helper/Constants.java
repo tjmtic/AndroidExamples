@@ -16,16 +16,22 @@ public class Constants {
      * SERVER ACCESS
      */
     public static final String server = "http://10.0.2.2:3003/"; //localhost:3000
-    //public static String server = "https://maxecommerce.herokuapp.com/";
-    //private static String server = "https://tjmtic-node-examples.herokuapp.com/";
+    public static final String chatServer = "http://10.0.2.2:3003/"; //chat
 
 
     /**
      * NETOWRK REQUESTS
      */
+
+
+    //LOGINS
     //public static final String loginUrl = server+"appLogin"; //localhost:3000
-    public static final String loginUrl = server+"users/app/login/"; //localhost:3000
-    public static final String homeUrl = server+"users/app/";
+    public static final String LOGIN_URL = server+"users/app/login/"; //localhost:3000
+    public static final String OAUTH_FACEBOOK_LOGIN_URL = server+"users/app/auth/facebook/";
+
+    public static final String CHAT_SERVER_URL = chatServer;
+
+    public static final String HOME_URL = server+"users/app/";
 
 
     /**

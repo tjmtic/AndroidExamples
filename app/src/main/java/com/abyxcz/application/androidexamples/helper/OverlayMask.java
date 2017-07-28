@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.abyxcz.application.androidexamples.R;
@@ -25,11 +26,11 @@ public class OverlayMask {
     public void showLoading(){
 
         try{
-            ((ViewStub) ((Activity)ctx).findViewById(R.id.stub_import)).setVisibility(View.VISIBLE);
+            (((Activity)ctx).findViewById(R.id.stub_import)).setVisibility(View.VISIBLE);
 
         }catch(NullPointerException e){
 
-            ((RelativeLayout) ((Activity)ctx).findViewById(R.id.panel_import)).setVisibility(View.VISIBLE);
+            (((Activity)ctx).findViewById(R.id.panel_import)).setVisibility(View.VISIBLE);
         }
 
         ImageView loadingIcon = (ImageView) ((Activity)ctx).findViewById(R.id.customProgress);
@@ -42,11 +43,11 @@ public class OverlayMask {
 
     public void hideLoading(){
         try{
-            ((ViewStub) ((Activity)ctx).findViewById(R.id.stub_import)).setVisibility(View.GONE);
+            (((Activity)ctx).findViewById(R.id.stub_import)).setVisibility(View.GONE);
 
         }catch(NullPointerException e){
 
-            ((RelativeLayout) ((Activity)ctx).findViewById(R.id.panel_import)).setVisibility(View.GONE);
+            (((Activity)ctx).findViewById(R.id.panel_import)).setVisibility(View.GONE);
         }
         //loadingViewAnim.stop();
     }

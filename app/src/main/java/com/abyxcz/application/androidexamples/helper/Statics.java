@@ -15,9 +15,7 @@ import android.widget.Toast;
 public class Statics {
 
 
-    /**
-     * LOADING ANIMATION
-     */
+
 
 
 

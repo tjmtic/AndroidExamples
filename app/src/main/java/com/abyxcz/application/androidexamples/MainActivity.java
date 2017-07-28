@@ -15,6 +15,7 @@ import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.abyxcz.application.androidexamples.helper.OverlayMask;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -25,6 +26,7 @@ import com.abyxcz.application.androidexamples.model.User;
 import com.abyxcz.application.androidexamples.network.CustomRequestParameterFactory;
 import com.abyxcz.application.androidexamples.network.MySingleton;
 
+import com.facebook.login.LoginManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 
@@ -38,14 +40,19 @@ public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "=~_~=tijAmAtic=~_~=";
 
+
+    protected OverlayMask mOM;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//Should have to check for a permission here?...
-        ((ExampleApplication)getApplication()).setDeviceId(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
+        //Should have to check for a permission here?...
+        ((ExampleApplication)getApplication()).setDeviceId(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
         Log.d(TAG, "DEVICE = " +FirebaseInstanceId.getInstance().getToken());
+
+        mOM = new OverlayMask(this);
+
         get();
        // startSignIn();
     }
@@ -73,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
         //Action based on menu item
         if (id == R.id.action_1) {
             Log.d("Menu Click", "Action 1 Clicked");
-            mPager.setCurrentItem(0);
+           // mPager.setCurrentItem(0);
+            Log.d(TAG, "LOGOUT CLICKED");
+            logout();
         }
 
         else if (id == R.id.action_2) {
@@ -113,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
         else if(requestCode == Constants.REQUEST_LOGIN) {
             User u = ((ExampleApplication)getApplication()).getUser();
             Statics.toast(this, getResources().getString(R.string.login_welcome) + u.getUsername(), 0);
+
+            initPager();
         }
     }
 
@@ -214,100 +225,45 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, Constants.REQUEST_LOGIN);
     }
 
-
     /**
-     * LOGIN
-     * NETWORK REQUEST
+     * LOGOUT ACTION
+     *
+     * Nullify User info
+     * Remove latent OAuth tokens
+     * Send user to login activity
      */
 
-    public void login(String e, String p){
+    private void logout(){
 
-        String email = e;
-        String password = p;
+        //Nullify User
+        ((ExampleApplication)(MainActivity.this.getApplication())).setUser(null);
+        //Check for OAuth Tokens
+        LoginManager.getInstance().logOut();
 
-       /* Map<String, String> params = new HashMap<String, String>();
-        params.put("email", email);
-        params.put("password", password);
-        params.put("device_type", "G");*/
-       // params.put("store_id", appId);
-
-       CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
-        f.addStringParam("email", email);
-        f.addStringParam("password", password);
-
-        Map<String, String> params = f.buildParams();
-
-
-        Log.d(TAG, "LOGIN PARAMS" + params.toString());
-        //showLoading();
-
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, ((ExampleApplication)(MainActivity.this.getApplication())).getSid(),  new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-
-                Log.d(TAG, response.toString());
-                JSONObject jsonMainNode = response;
-
-                try {
-
-                    String status = response.getString("message");
-                    ((ExampleApplication)(MainActivity.this.getApplication())).setCsrf(response.getString("csrf"));
-                    ((ExampleApplication)(MainActivity.this.getApplication())).setSid(response.getString("set-cookie"));
-
-                    //check response
-                    if (status.toString().equals("success")) {
-                        //////////////good///////////
-
-                        //capture response info
-                        JSONObject uInfo = jsonMainNode.getJSONObject("user");
-                        Log.d(TAG, uInfo.toString());
-
-                        User lUser = new User(uInfo);
-
-                        ((ExampleApplication)(MainActivity.this.getApplication())).setUser(lUser);
-
-                    }
-                    //bad
-                    else{
-                        //Log and display error message
-                        JSONObject message = response.getJSONObject("message");
-                        Log.d(TAG, "Login Failure " + message.toString());
-
-                    }
-                    //hideLoading();
-
-                }catch(JSONException e){
-                    //Log and display error message
-                    Statics.setAlert(MainActivity.this,"There was an error");
-                    Log.d(TAG, "There was an aerror" + e);
-                }
-                //hide loading spinner
-                //hideLoading();
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(final VolleyError error) {
-// TODO Auto-generated method stub
-                // hideLoading();
-                //throw alert about connecting to server
-                Log.d(TAG, "couldn't connect....." + error.getMessage());
-                //setAlert("There was an error = " + error.getMessage());
-            }
-        });
-        MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+        startSignIn();
     }
 
-    public void get(){
 
+
+    /**
+     * Initial GET call to server
+     * Instantiate the client/server session
+     *
+     * Retrieve CSRF token, and SessionID token
+     *
+     * Set CSRF and SID in Application for
+     * next Network Request
+     **/
+
+    public void get(){
 
         CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
         Map<String, String> params = f.buildParams();
         Log.d(TAG, "GET PARAMS" + params.toString());
 
-        //showLoading();
+        mOM.showLoading();
 
-        CustomRequest jsObjRequest = new CustomRequest(Constants.homeUrl, params, new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Constants.HOME_URL, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -325,9 +281,10 @@ public class MainActivity extends AppCompatActivity {
                     if (status.toString().equals("success")) {
                         //////////////good///////////
 
-                        Log.d(TAG, "Success");
-                       // login("test@test.com", "cookie");
-                        startSignIn();
+                        Log.d(TAG, "Client/Server Initialization Success");
+                        if(((ExampleApplication)(MainActivity.this.getApplication())).getUser() == null) {
+                            startSignIn();
+                        }
 
                     }
                     //bad
@@ -337,22 +294,20 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Login Failure " + message.toString());
 
                     }
-                    //hideLoading();
 
                 }catch(JSONException e){
                     //Log and display error message
                     Statics.setAlert(MainActivity.this,"There was an error");
                     Log.d(TAG, "There was an aerror" + e);
                 }
-                //hide loading spinner
-                //hideLoading();
+
+                mOM.hideLoading();
 
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(final VolleyError error) {
 // TODO Auto-generated method stub
-                // hideLoading();
                 //throw alert about connecting to server
                 Log.d("new error", "couldn't connect....." + error.getMessage());
                 //setAlert("There was an error = " + error.getMessage());

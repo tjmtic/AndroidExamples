@@ -23,6 +23,15 @@ import com.abyxcz.application.androidexamples.helper.Statics;
 import com.abyxcz.application.androidexamples.model.User;
 import com.abyxcz.application.androidexamples.network.CustomRequestParameterFactory;
 import com.abyxcz.application.androidexamples.network.MySingleton;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +47,8 @@ public class LoginActivity extends Activity {
     private final String TAG = "=~_~=tijAmAtic=~_~=";
 
     private OverlayMask mOM;
+
+    CallbackManager callbackManager;
 
     private EditText mUsernameView;
     private String mUsername;
@@ -55,7 +66,6 @@ public class LoginActivity extends Activity {
 
 
         mOM = new OverlayMask(this);
-
 
         ExampleApplication app = (ExampleApplication) getApplication();
         mUser = app.getUser();
@@ -99,6 +109,7 @@ public class LoginActivity extends Activity {
 
 
         //Facebook Login Initialization
+        initFacebookLogin();
 
     }
 
@@ -106,6 +117,12 @@ public class LoginActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -117,6 +134,87 @@ public class LoginActivity extends Activity {
         finish();
     }
 
+
+
+
+    /**
+     * Initialize Facebook OAuth Login
+     *
+     */
+    public void initFacebookLogin(){
+
+
+        if(AccessToken.getCurrentAccessToken().getCurrentAccessToken() != null){
+            //Already Logged In with Facebook Token
+            //Send login request to server
+            final String token = AccessToken.getCurrentAccessToken().getToken();
+            final String pid = AccessToken.getCurrentAccessToken().getUserId();
+            oauthFacebookLogin(token, "", pid);
+
+        }
+
+        else {
+            //Not Logged In with Facebook
+            //Initialize Facebook Login actions
+            callbackManager = CallbackManager.Factory.create();
+
+            LoginManager.getInstance().registerCallback(callbackManager,
+                    new FacebookCallback<LoginResult>() {
+                        @Override
+                        public void onSuccess(LoginResult loginResult) {
+                            // App code
+
+                            final String token = loginResult.getAccessToken().getToken();
+                            final String pid = loginResult.getAccessToken().getUserId();
+
+                            new GraphRequest(
+                                    //loginResult.getAccessToken().getToken(),
+                                    AccessToken.getCurrentAccessToken().getCurrentAccessToken(),
+                                    "/me?fields=id,name,email",
+                                    null,
+                                    HttpMethod.GET,
+                                    new GraphRequest.Callback() {
+                                        public void onCompleted(GraphResponse response) {
+
+                                            Log.d(TAG, response.toString());
+                                            JSONObject responseJSON = response.getJSONObject();
+                                            Log.d(TAG, responseJSON.toString());
+
+                                            try {
+                                                String fName = responseJSON.getString("name").split(" ", 2)[0];
+                                                String lName = responseJSON.getString("name").split(" ", 2)[1];
+                                                String email = responseJSON.getString("email");
+
+                                                oauthFacebookLogin(token, email, pid);
+
+                                            } catch (JSONException e) {
+                                                Log.e(TAG, "FACEBOOK RESPONSE ERROR:" + e.getMessage());
+                                            }
+
+                                        }
+                                    }
+                            ).executeAsync();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            // App code
+                            Log.d(TAG, "Facebo0k Login Cancel");
+                            Statics.toast(LoginActivity.this, "Facebook Login Cancelled", 0);
+                        }
+
+                        @Override
+                        public void onError(FacebookException exception) {
+                            // App code
+                            Log.d(TAG, "Facebo0k Login Exception:" + exception.toString());
+                            Statics.toast(LoginActivity.this, "Facebook Login Error", 0);
+                        }
+                    });
+
+        }
+
+
+    }
 
     /**
      * Attempts to sign in the account specified by the login form.
@@ -178,7 +276,95 @@ public class LoginActivity extends Activity {
         Log.d(TAG, "LOGIN PARAMS" + params.toString());
         mOM.showLoading();
 
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.loginUrl, params, ((ExampleApplication)(LoginActivity.this.getApplication())).getSid(),  new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.LOGIN_URL, params, ((ExampleApplication)(LoginActivity.this.getApplication())).getSid(),  new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, response.toString());
+                JSONObject jsonMainNode = response;
+
+                try {
+
+                    String status = response.getString("message");
+                    ((ExampleApplication)(LoginActivity.this.getApplication())).setCsrf(response.getString("csrf"));
+
+                    try {
+                        ((ExampleApplication) (LoginActivity.this.getApplication())).setSid(response.getString("set-cookie"));
+                    }catch(JSONException e){
+                    }
+                    //check response
+                    if (status.toString().equals("success")) {
+                        //////////////good///////////
+
+                        //capture response info
+                        JSONObject uInfo = jsonMainNode.getJSONObject("user");
+                        Log.d(TAG, uInfo.toString());
+                        User lUser = new User(uInfo);
+
+                        //"Logging in"
+                        ((ExampleApplication)(LoginActivity.this.getApplication())).setUser(lUser);
+
+                        //back to app
+                        onLogin();
+
+                    }
+                    //bad
+                    else{
+                        //Log and display error message
+                        String message = response.getString("error");
+                        Statics.toast(LoginActivity.this,"There was an error. " + message.toString(), 0);
+                        Log.d(TAG, "Login Failure " + message.toString());
+                    }
+                    //hideLoading();
+
+                }catch(JSONException e){
+                    //Log and display error message
+                    Statics.setAlert(LoginActivity.this,"There was an error. Please check your internet connection.");
+                    Log.d(TAG, "There was an aerror" + e);
+                }
+                //hide loading spinner
+                mOM.hideLoading();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(final VolleyError error) {
+// TODO Auto-generated method stub
+                // hideLoading();
+                //throw alert about connecting to server
+                Statics.setAlert(LoginActivity.this,"There was an error. Please check your internet connection.");
+
+                Log.d(TAG, "couldn't connect....." + error.getMessage());
+                //setAlert("There was an error = " + error.getMessage());
+            }
+        });
+        MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+    }
+
+    public void oauthFacebookLogin(String t, String e, String p){
+
+        String token = t;
+        String email = e;
+        String pid = p;
+
+       /* Map<String, String> params = new HashMap<String, String>();
+        params.put("email", email);
+        params.put("password", password);
+        params.put("device_type", "G");*/
+        // params.put("store_id", appId);
+
+        CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
+        f.addStringParam("token", token);
+        f.addStringParam("email", email);
+        f.addStringParam("pid", pid);
+
+        Map<String, String> params = f.buildParams();
+
+
+        Log.d(TAG, "FACEBOOK LOGIN PARAMS" + params.toString());
+        mOM.showLoading();
+
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, Constants.OAUTH_FACEBOOK_LOGIN_URL, params, ((ExampleApplication)(LoginActivity.this.getApplication())).getSid(),  new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
