@@ -24,6 +24,7 @@ public class Constants {
      * NETOWRK REQUESTS
      */
     //public static final String loginUrl = server+"appLogin"; //localhost:3000
+    public static final String homeUrl = server+"users/app/";
     public static final String loginUrl = server+"users/app/login/"; //localhost:3000
     public static final String homeUrl = server+"users/app/";
 
