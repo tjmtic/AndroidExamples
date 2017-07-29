@@ -13,7 +13,11 @@ import com.abyxcz.application.androidexamples.network.MySingleton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.Map;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 
 public class ExampleApplication extends android.app.Application {
@@ -22,16 +26,31 @@ public class ExampleApplication extends android.app.Application {
 
     private String mCsrf;
     private String mSid;
-    int channel = 5;
 
     private User mUser;
 
     private String mDeviceId;
 
+    int channel = 5;
+    private Socket mSocket;
 
-    {
-        //Get/Set CSRF and SessionID
-        //get();
+        {
+
+            try {
+                //mSocket = IO.socket(Constants.CHAT_SERVER_URL);
+                ////version 1
+                IO.Options options = new IO.Options();
+                options.path = "/socket.io";
+                options.query = "channel="+channel;
+                mSocket = IO.socket(Constants.CHAT_SERVER_URL, options);
+
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    public Socket getSocket() {
+        return mSocket;
     }
 
     public void setDeviceId(String s){
@@ -40,6 +59,7 @@ public class ExampleApplication extends android.app.Application {
     public String getDeviceId(){
         return mDeviceId;
     }
+
     public void setUser(User u){
         mUser = u;
     }
@@ -72,24 +92,21 @@ public class ExampleApplication extends android.app.Application {
         CustomRequestParameterFactory f = new CustomRequestParameterFactory(this);
         Map<String, String> params = f.buildParams();
 
-        CustomRequest jsObjRequest = new CustomRequest(Constants.homeUrl, params, new Response.Listener<JSONObject>() {
+        CustomRequest jsObjRequest = new CustomRequest(Constants.HOME_URL, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
                 try {
 
+                    //SET CUSTOM HEADERS
                     setCsrf(response.getString("csrf"));
                     setSid(response.getString("set-cookie"));
-
-                    //hideLoading();
 
                 }catch(JSONException e){
                     //Log and display error message
                     Log.d(TAG, "There was an aerror" + e);
                     get();
                 }
-                //hide loading spinner
-                //hideLoading();
 
             }
         }, new Response.ErrorListener() {
