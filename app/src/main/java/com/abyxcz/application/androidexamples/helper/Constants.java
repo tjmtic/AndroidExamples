@@ -15,8 +15,9 @@ public class Constants {
     /**
      * SERVER ACCESS
      */
-    public static final String server = "http://10.0.2.2:3000/"; //localhost:3000
-    public static final String chatServer = "http://10.0.2.2:3000/"; //chat
+    public static final String server = "http://172.31.99.220:3000/";//10.0.2.2:3000/"; //localhost:3000
+    public static final String chatServer = "http://172.31.99.220:3000/"; //chat
+
 
 
     /**
@@ -31,7 +32,6 @@ public class Constants {
     public static final String OAUTH_FACEBOOK_LOGIN_URL = server+"users/app/auth/facebook/";
 
     public static final String CHAT_SERVER_URL = chatServer;
-
     public static final String HOME_URL = server+"users/app/";
 
 
